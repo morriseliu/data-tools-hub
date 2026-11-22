@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四合一数据工具站 / Data Tools Hub</title>
+<meta name="description" content="聪明钱雷达、组合实验室、宏观看板、AI 数据智库，四合一研究工具原型。只用公开免费数据源，示例数据明确标注。">
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#1a2332;--muted:#5b6b7f;--line:#dde4ec;--accent:#1e5aa8;--accent2:#0e7c6b;--warn:#9a6b00;--warnbg:#fff7e0;--err:#b3261e;--errbg:#fdecea;--okbg:#eaf6f1}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+header{background:#12233d;color:#fff;padding:22px 16px 16px}header h1{margin:0;font-size:24px}header p{margin:6px 0 0;color:#c8d6e8;font-size:14px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 14px 40px}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5}
+nav.tabs button{border:1px solid var(--line);background:#fff;padding:9px 14px;border-radius:999px;cursor:pointer;font-size:14px}
+nav.tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #8ab4f8;outline-offset:2px}
+section.panel{display:none}section.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:0 0 16px}
+.card h2{margin:0 0 8px;font-size:20px}.card h3{margin:18px 0 8px;font-size:16px}
+.muted{color:var(--muted);font-size:13px}.small{font-size:12.5px}
+.badge{display:inline-block;background:#e8eff8;color:var(--accent);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;margin-right:6px}
+.badge.sample{background:var(--warnbg);color:var(--warn)}.badge.live{background:var(--okbg);color:var(--accent2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+button{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+button:disabled{opacity:.55;cursor:wait}
+input,select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;width:100%;background:#fff}
+label{font-size:13px;color:var(--muted);display:block;margin:0 0 4px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1 1 160px}.row .narrow{flex:0 1 130px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;overflow-wrap:anywhere}th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}th{background:#f0f3f7}
+.tablewrap{overflow-x:auto}
+.error{background:var(--errbg);color:var(--err);border:1px solid #f5c6c2;border-radius:8px;padding:10px 12px;margin:10px 0;display:none}
+.error.show{display:block}.notice{background:var(--warnbg);border:1px solid #f0d48a;border-radius:8px;padding:10px 12px;margin:10px 0}
+.okbox{background:var(--okbg);border:1px solid #bfe3d6;border-radius:8px;padding:10px 12px;margin:10px 0}
+canvas{width:100%;height:220px;border:1px solid var(--line);border-radius:8px;background:#fff}
+canvas.mini{height:64px}
+pre{background:#0f1c2e;color:#d7e6f5;padding:14px;border-radius:8px;overflow-x:auto;font-size:12.5px;line-height:1.55;white-space:pre-wrap;word-break:break-all}
+a{color:var(--accent)}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:20px 14px 30px}
+.investor{border:1px solid var(--line);border-radius:10px;padding:14px;margin:10px 0}
+.holdings{display:none;margin-top:10px}.holdings.show{display:block}
+footer strong{color:var(--ink)}
+@media(max-width:640px){header h1{font-size:20px}.card{padding:14px}nav.tabs button{padding:8px 11px;font-size:13px}}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap" style="padding:0">
+<h1>四合一数据工具站 <span style="font-size:15px;font-weight:400;color:#c8d6e8">Data Tools Hub</span></h1>
+<p>聪明钱雷达 · 组合实验室 · 宏观看板 · AI 数据智库 —— 一个页面，四个研究工具。只用公开免费数据源；拉不到数据就明说，示例数据一律标注“示例”。</p>
+</div>
+</header>
+<div class="wrap">
+<nav class="tabs" aria-label="模块导航">
+<button data-tab="home" class="active" type="button">首页总览</button>
+<button data-tab="radar" type="button">聪明钱雷达</button>
+<button data-tab="lab" type="button">组合实验室</button>
+<button data-tab="macro" type="button">宏观看板</button>
+<button data-tab="intel" type="button">AI 数据智库</button>
+</nav>
+
+<!-- HOME -->
+<section class="panel active" id="panel-home">
+<div class="card">
+<h2>先说清楚：这个站能做什么、不能做什么</h2>
+<p>本站是<strong>同功能重做版原型</strong>，界面与文案均为原创。它不复制任何私有数据库，不使用访问码，不爬取受限内容。每个模块都当场拉取公开接口；拉不到就显示错误状态和重试，绝不拿示例数冒充实时数。</p>
+<div class="grid">
+<div class="card" style="margin:0"><h3>1 · 聪明钱雷达</h3><p class="muted">公开可查的 13F 机构目录 + SEC 直达链接 + 带日期与来源的持仓快照 + 股票代码反查。</p><button type="button" data-goto="radar">进入雷达 →</button></div>
+<div class="card" style="margin:0"><h3>2 · 组合实验室</h3><p class="muted">Stooq 日线回测、等权 / 最小方差 / 最大夏普 / 风险平价近似，协方差与求解在浏览器里真实计算。</p><button type="button" data-goto="lab">进入实验室 →</button></div>
+<div class="card" style="margin:0"><h3>3 · 宏观看板</h3><p class="muted">世界银行公开 API：中、美、日、欧盟的 CPI 与 GDP 增速；FRED 利率序列尝试接入，失败即明示。</p><button type="button" data-goto="macro">进入看板 →</button></div>
+<div class="card" style="margin:0"><h3>4 · AI 数据智库</h3><p class="muted">OpenRouter 公开模型列表：可搜索、可排序的价格表；数据集卡片只写一句话说明加官方链接。</p><button type="button" data-goto="intel">进入智库 →</button></div>
+</div>
+<p class="muted" style="margin-top:14px">数据截至 / 来源：每个模块下方都标注来源与拉取时间。13F 快照、示例测算均非实时持仓 / 实时行情，请以原始来源为准。</p>
+</div>
+<div class="card">
+<h2>数据源一览（公开免费，无 Key）</h2>
+<table><tr><th>模块</th><th>来源</th><th>说明</th></tr>
+<tr><td>聪明钱雷达</td><td>SEC EDGAR（13F 搜索）</td><td>目录与链接实时可用；持仓数字为带日期的快照</td></tr>
+<tr><td>组合实验室</td><td>Stooq 日线 CSV</td><td>浏览器直连常受 CORS / 频次限制，失败时提供上传 CSV 与示例路径</td></tr>
+<tr><td>宏观看板</td><td>世界银行 API、FRED</td><td>世界银行无 Key；FRED 尝试 fredgraph.csv，失败即明示</td></tr>
+<tr><td>AI 数据智库</td><td>OpenRouter 公开模型列表</td><td>无 Key；价格为接口返回的每 token 价，页面换算为每百万 token</td></tr></table>
+</div>
+</section>
+
+<!-- RADAR -->
+<section class="panel" id="panel-radar">
+<div class="card">
+<h2>聪明钱雷达 <span class="badge">13F 目录 + 快照</span></h2>
+<p>13F 是美国大型机构管理人每季度向 SEC 申报的持仓表，只含季度末的美国上市证券多头，不含空头、现金、债券与大部分非美持仓，且申报滞后最长 45 天。本页目录只列公开可查的机构；持仓列是<strong>快照</strong>，不是当前持仓。</p>
+<div class="row">
+<div><label for="radarSearch">搜索投资者 / 机构 / 股票代码</label><input id="radarSearch" type="search" placeholder="例如 Berkshire、GOOGL、1067983"></div>
+<div class="narrow"><label for="radarFilter">类别筛选</label><select id="radarFilter"><option value="all">全部</option><option value="13f">13F 机构</option><option value="master">大师型机构</option><option value="ashare">A 股结构说明</option></select></div>
+<div class="narrow"><button class="primary" id="radarSearchBtn" type="button">搜索</button></div>
+</div>
+<p class="muted" id="radarCount"></p>
+<div id="radarList"></div>
+<div class="error" id="radarError" role="alert"></div>
+</div>
+
+<div class="card">
+<h2>股票代码反查（仅快照范围）</h2>
+<p>输入一只股票代码，查看它是否出现在下方快照里、被哪家机构持有。快照范围很小，范围外不代表没有机构持有。</p>
+<div class="row">
+<div><label for="tickerInput">股票代码（例如 AAPL、GOOGL、PDD）</label><input id="tickerInput" type="text" placeholder="AAPL" value="AAPL"></div>
+<div class="narrow"><button class="primary" id="tickerBtn" type="button">反查</button></div>
+</div>
+<div id="tickerResult"></div>
+<p class="muted">反查只覆盖“持仓快照”里列出的持仓。未覆盖时页面会明确说“本快照未覆盖”，并给出 SEC 搜索链接，请自行到 SEC 核实最新 13F。</p>
+</div>
+
+<div class="card" id="ashareCard">
+<h2>A 股结构说明 <span class="badge">不伪造数据</span></h2>
+<p>A 股没有与美国 13F 对等的、免费公开的全量接口：公募基金持仓按季度在基金季报中披露，散户与“国家队”的完整名单并不存在一个统一的免费实时数据库；十大股东 / 十大流通股东数据分散在各公司定期报告中，且口径与时点各不相同。</p>
+<p>因此本页<strong>不展示</strong>所谓“1.1 万投资者”名单，也不编造任何 A 股持仓数字。如需研究 A 股机构动向，请按公司查定期报告与基金季报原文，或使用持牌数据终端。本页只保留结构说明，避免用拼凑数字误导判断。</p>
+<p class="muted">类别筛选选“A 股结构说明”时，本卡片会单独高亮；其他类别下它始终可见，作为口径提醒。</p>
+</div>
+<p class="muted">来源标注：SEC EDGAR 搜索链接由 CIK 生成；快照数字的日期与第三方整理来源见各机构卡片内，须以 SEC 原文为准。</p>
+</section>
+
+<!-- LAB -->
+<section class="panel" id="panel-lab">
+<div class="card">
+<h2>组合实验室 <span class="badge">真实计算</span> <span class="badge sample">示例数据会标注“示例”</span></h2>
+<p>先尝试从 Stooq 拉日线 CSV 做真实计算；浏览器直连常因 CORS 或 Stooq 频次限制失败，失败时会显示错误并提供上传 CSV 与示例测算两条路。优化数学（协方差、求逆、权重求解）在本页 JavaScript 里真实算出，不写死结果。</p>
+<div class="row">
+<div><label for="labStart">回测开始</label><input id="labStart" type="date" value="2024-01-01"></div>
+<div><label for="labEnd">回测结束</label><input id="labEnd" type="date" value="2025-12-31"></div>
+<div><label for="labMethod">优化方法</label><select id="labMethod"><option value="equal">等权</option><option value="minvar">最小方差</option><option value="maxsharpe">最大夏普（无风险利率 0）</option><option value="riskparity">风险平价近似（迭代）</option></select></div>
+</div>
+<h3>资产（勾选参与，代码可编辑；Stooq 代码格式如 spy.us）</h3>
+<div id="assetRows"></div>
+<div class="row" style="margin-top:10px">
+<div class="narrow"><button type="button" id="equalBtn">一键等权</button></div>
+<div class="narrow"><button type="button" id="addAssetBtn">+ 加一类资产</button></div>
+<div class="narrow"><button class="primary" type="button" id="runBtn">拉取 Stooq 并回测</button></div>
+<div class="narrow"><button type="button" id="sampleBtn">示例测算（示例数据）</button></div>
+</div>
+<p class="muted">A 股代码说明：510300、513100 的 Stooq 代码未在本原型中核实，默认填的 510300.ss / 513100.ss 仅为待核实格式，拉不到时请改填已核实的 Stooq 代码或改用上传 CSV。美国 ETF 默认代码 spy.us、qqq.us、gld.us、tlt.us 采用 Stooq 常见的 .us 后缀格式。</p>
+<div class="error" id="labError" role="alert"></div>
+<div class="okbox" id="labStatus" style="display:none"></div>
+<h3>净值曲线（起点 = 100）</h3>
+<canvas id="equityCanvas" width="900" height="220"></canvas>
+<p class="muted" id="chartNote">尚未计算。</p>
+<h3>回测结果</h3>
+<div class="tablewrap" id="labResults"><p class="muted">尚未计算。</p></div>
+<h3>相关系数矩阵（日收益）</h3>
+<div class="tablewrap" id="corrTable"><p class="muted">尚未计算。</p></div>
+<h3>优化后权重</h3>
+<div class="tablewrap" id="weightTable"><p class="muted">尚未计算。</p></div>
+</div>
+<div class="card">
+<h2>上传 CSV（date,close 或多列）</h2>
+<p>两种格式都支持：① 单资产文件，表头为 <code>date,close</code>，会作为当前勾选的第一只资产；② 多资产文件，第一列为 <code>date</code>，其余每列列名为资产代码，值为收盘价。日期格式 YYYY-MM-DD。</p>
+<div class="row"><div><label for="csvFile">选择 CSV 文件</label><input id="csvFile" type="file" accept=".csv,text/csv"></div><div class="narrow"><button type="button" id="csvBtn">用上传数据回测</button></div></div>
+<p class="muted">上传文件只在浏览器本地解析，不会上传到任何服务器。</p>
+<div class="error" id="csvError" role="alert"></div>
+</div>
+</section>
+
+<!-- MACRO -->
+<section class="panel" id="panel-macro">
+<div class="card">
+<h2>宏观看板 <span class="badge live">世界银行公开 API</span></h2>
+<p>直接拉取世界银行公开 API（无 Key）。每张卡显示最新值与年份，以及近年的迷你折线。拉不到时显示错误状态与重试，不编数字。</p>
+<div class="row"><div class="narrow"><button class="primary" type="button" id="macroRefreshBtn">刷新</button></div><div><p class="muted" id="macroMeta" style="margin:0">尚未拉取。</p></div></div>
+<div class="error" id="macroError" role="alert"></div>
+<div id="macroCards"><p class="muted">点击“刷新”拉取，或等待页面自动拉取一次。</p></div>
+<p class="muted">来源：世界银行 World Development Indicators，接口 <code>api.worldbank.org/v2/...</code>。国家代码 CN / USA / JP / EU；指标 CPI 为 FP.CPI.TOTL.ZG，GDP 增速为 NY.GDP.MKTP.KD.ZG，失业率为 SL.UEM.TOTL.ZS（该指标本次拉取如失败，卡片会显示未获取，不写旧数）。</p>
+</div>
+<div class="card">
+<h2>美国利率序列（FRED 尝试接入）</h2>
+<p>尝试拉取 FRED 的 fredgraph.csv（DGS10、DGS2、FEDFUNDS）。浏览器直连 FRED 常被 CORS 挡住；拉不到就显示未接入说明，不编数字。</p>
+<div class="error" id="fredError" role="alert"></div>
+<div id="fredBox"><p class="muted">尚未尝试拉取 FRED。</p></div>
+<div class="row"><div class="narrow"><button type="button" id="fredBtn">尝试拉取 FRED</button></div></div>
+<p><a href="https://fred.stlouisfed.org/series/DGS10" target="_blank" rel="noopener">FRED：DGS10（10 年期国债收益率）</a> · <a href="https://fred.stlouisfed.org/series/DGS2" target="_blank" rel="noopener">FRED：DGS2（2 年期）</a> · <a href="https://fred.stlouisfed.org/series/FEDFUNDS" target="_blank" rel="noopener">FRED：FEDFUNDS（联邦基金有效利率）</a></p>
+</div>
+<div class="card">
+<h2>美联储利率预期：本页不冒充隐含概率</h2>
+<p>没有免费公开的 CME FedWatch 接口可供浏览器直接拉取隐含概率。本页因此<strong>不展示</strong>任何“下次会议降息概率”数字，只展示 FRED 政策利率序列（如上，拉到才显示）并附 FRED 链接。需要隐含概率时，请到 CME FedWatch 官方页面查看原文。</p>
+<p><a href="https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html" target="_blank" rel="noopener">CME FedWatch 官方页面（外部链接）</a></p>
+</div>
+</section>
+
+<!-- INTEL -->
+<section class="panel" id="panel-intel">
+<div class="card">
+<h2>AI 数据智库：模型价格表 <span class="badge live">OpenRouter 公开接口</span></h2>
+<p>直接拉取 OpenRouter 公开模型列表（无 Key）。价格为接口返回的每 token 价，页面换算为每百万 token 美元价；拉不到显示错误与重试。</p>
+<div class="row">
+<div><label for="modelSearch">搜索模型（id / 名称）</label><input id="modelSearch" type="search" placeholder="例如 gpt、gemini、qwen"></div>
+<div class="narrow"><label for="modelSort">排序</label><select id="modelSort"><option value="prompt">输入价 ↑</option><option value="promptDesc">输入价 ↓</option><option value="completion">输出价 ↑</option><option value="contextDesc">上下文 ↓</option><option value="name">名称 A→Z</option></select></div>
+<div class="narrow"><button class="primary" type="button" id="modelRefreshBtn">刷新</button></div>
+</div>
+<p class="muted" id="modelMeta">尚未拉取。</p>
+<div class="error" id="modelError" role="alert"></div>
+<div class="tablewrap" id="modelTable"><p class="muted">点击“刷新”拉取，或等待页面自动拉取一次。</p></div>
+<div class="row"><div class="narrow"><button type="button" id="modelMoreBtn" style="display:none">显示更多</button></div></div>
+</div>
+<div class="card">
+<h2>数据集卡片（一句话说明 + 官方链接，不复制数据）</h2>
+<div class="grid">
+<div class="card" style="margin:0"><h3>Epoch AI</h3><p class="muted">跟踪 AI 训练算力、模型规模与行业趋势的研究机构，公开研究报告与数据集目录。</p><p><a href="https://epoch.ai" target="_blank" rel="noopener">epoch.ai →</a></p></div>
+<div class="card" style="margin:0"><h3>Artificial Analysis</h3><p class="muted">独立评测大模型质量、速度与价格的公开基准，模型对比与排行榜可直接查阅。</p><p><a href="https://artificialanalysis.ai" target="_blank" rel="noopener">artificialanalysis.ai →</a></p></div>
+<div class="card" style="margin:0"><h3>OpenRouter</h3><p class="muted">聚合多家模型调用的公开平台，本页价格表即取自它的公开模型列表接口。</p><p><a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai →</a></p></div>
+<div class="card" style="margin:0"><h3>数据中心 / 资本开支主题</h3><p class="muted">本页不编芯片价格与开支数字；研究资本开支请查上市公司财报与 SEC 申报原文。</p><p><a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=10-K" target="_blank" rel="noopener">SEC EDGAR 10-K 搜索 →</a></p></div>
+</div>
+<p class="muted">以上卡片不含任何芯片价格、算力成本或资本开支数字；数字请以各官方来源原文为准。</p>
+</div>
+<div class="card">
+<h2>公开 API 示例（OpenRouter 公开接口，不是任何私有站点的 API）</h2>
+<pre id="apiExample">fetch("https://openrouter.ai/api/v1/models")
+  .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  .then(function (j) {
+    // j.data 是模型数组；每项含 id、context_length、
+    // pricing.prompt / pricing.completion（每 token 美元价）
+    console.log("模型总数：", j.data.length);
+    console.log(j.data[0].id, j.data[0].pricing);
+  })
+  .catch(function (e) { console.error("拉取失败：", e); });</pre>
+<h2>通用 MCP 配置模板（需替换为你实际的 MCP 服务地址）</h2>
+<pre>{
+  "mcpServers": {
+    "example-data-mcp": {
+      "url": "https://example.invalid/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}</pre>
+<p class="muted">说明：上面是通用 MCP 客户端配置模板，不是 OpenRouter 的 MCP 地址，也不代表本页已接入任何 MCP 服务。把 <code>url</code> 换成你自己部署或授权的 MCP 服务地址后，方可使用；不要把密钥写进公开网页。</p>
+</div>
+</section>
+
+</div>
+<footer>
+<p><strong>四合一数据工具站 / Data Tools Hub</strong> —— 研究原型，仅供研究参考，不构成投资建议。</p>
+<p class="small">数据来自各公开来源原文；快照与示例均已标注，实时数字以来源拉取时间为准。</p>
+</footer>
+<script>
+"use strict";
+/* ---------- 通用 ---------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function fmtPct(x){return (x*100).toFixed(2)+"%";}
+function showErr(el,msg){el.textContent=msg;el.classList.add("show");}
+function hideErr(el){el.textContent="";el.classList.remove("show");}
+function secLink(cik){return "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK="+encodeURIComponent(cik)+"&type=13F-HR";}
+
+/* ---------- 标签页 ---------- */
+function switchTab(name){
+  document.querySelectorAll("nav.tabs button").forEach(function(b){b.classList.toggle("active",b.dataset.tab===name);});
+  document.querySelectorAll("section.panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+name);});
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(name==="macro"&&!window.__macroLoaded){window.__macroLoaded=true;loadMacro();}
+  if(name==="intel"&&!window.__modelLoaded){window.__modelLoaded=true;loadModels();}
+}
+document.querySelectorAll("nav.tabs button").forEach(function(b){b.addEventListener("click",function(){switchTab(b.dataset.tab);});});
+document.querySelectorAll("[data-goto]").forEach(function(b){b.addEventListener("click",function(){switchTab(b.dataset.goto);});});
+
+/* ---------- 聪明钱雷达 ---------- */
+/* 持仓数字均为带日期与来源的快照（第三方整理自 SEC 13F，须以 SEC 原文为准），不是当前持仓。 */
+var INVESTORS=[
+ {name:"Berkshire Hathaway",key:"berkshire",cik:"1067983",cats:["13f","master"],strategy:"长期持有盈利能力强、护城河宽的企业，极少频繁交易；13F 只反映其美国上市股票部分。",
+  snapshot:{quarter:"2026-06-30",filed:"2026-08-14",total:"约 2990 亿美元",positions:29,source:"Dealflow Labs 整理自 SEC 13F",sourceUrl:"https://trading.dealflowlabs.eu/funds/berkshire-hathaway/"},
+  holdings:[["AAPL","Apple","660 亿美元","22%"],["AXP","American Express","513 亿美元","17%"],["KO","Coca-Cola","325 亿美元","11%"],["GOOGL","Alphabet A 类","282 亿美元","9.4%"],["BAC","Bank of America","275 亿美元","9.2%"]]},
+ {name:"Pershing Square Capital Management, L.P.",key:"pershing",cik:"1336528",cats:["13f","master"],strategy:"集中持股、积极参与被投公司治理的风格，仓位少而重；2026 年二季度起相关持仓改由 Pershing Square Inc.（CIK 2026053）申报。",
+  snapshot:{quarter:"2026-03-31",filed:"2026-05-15",total:"约 137 亿美元",positions:11,source:"Pactolio 整理自 SEC 13F",sourceUrl:"https://pactolio.com/13f-portfolios/pershing-square"},
+  holdings:[["BN","Brookfield","24 亿美元","17.6%"],["AMZN","Amazon","24 亿美元","17.4%"],["UBER","Uber","22 亿美元","15.7%"],["MSFT","Microsoft","21 亿美元","15.3%"]]},
+ {name:"Himalaya Capital Management LLC",key:"himalaya",cik:"1709323",cats:["13f","master"],strategy:"长期价值投资，聚焦亚洲与北美市场，持有期长、换手低；创始人李录。",
+  snapshot:{quarter:"2026-03-31",filed:"2026-05-15",total:"约 32.0 亿美元",positions:14,source:"SteadyShares 整理自 SEC 13F",sourceUrl:"https://steadyshares.com/gurus/himalaya-capital/2026-q1"},
+  holdings:[["GOOGL","Alphabet A 类","7.31 亿美元","22.9%"],["GOOG","Alphabet C 类","7.03 亿美元","22.0%"],["PDD","PDD Holdings","4.71 亿美元","14.7%"],["BRK/B","Berkshire Hathaway B 类","4.30 亿美元","13.4%"],["EWBC","East West Bancorp","2.96 亿美元","9.3%"]]}
+];
+function renderRadar(){
+  var q=($("radarSearch").value||"").trim().toLowerCase();
+  var f=$("radarFilter").value;
+  var list=$("radarList");list.innerHTML="";
+  var shown=0;
+  INVESTORS.forEach(function(inv){
+    if(f==="ashare"){return;}
+    if(f!=="all"&&inv.cats.indexOf(f)<0){return;}
+    var hay=(inv.name+" "+inv.cik+" "+inv.holdings.map(function(h){return h[0]+" "+h[1];}).join(" ")).toLowerCase();
+    if(q&&hay.indexOf(q)<0){return;}
+    shown++;
+    var div=document.createElement("div");div.className="investor";
+    var extraLink="";
+    if(inv.key==="pershing"){extraLink=' · <a href="'+esc(secLink("2026053"))+'" target="_blank" rel="noopener">Pershing Square Inc.（CIK 2026053，2026Q2 起）SEC 搜索</a>';}
+    div.innerHTML='<h3 style="margin:0">'+esc(inv.name)+'</h3>'
+      +'<p class="muted">CIK '+esc(inv.cik)+' · 类别：13F 机构 / 大师型机构</p>'
+      +'<p>'+esc(inv.strategy)+'</p>'
+      +'<p><a href="'+esc(secLink(inv.cik))+'" target="_blank" rel="noopener">查看最新 13F（SEC EDGAR 搜索）→</a>'+extraLink+'</p>'
+      +'<p class="small muted">持仓快照：季度末 '+esc(inv.snapshot.quarter)+'，申报 '+esc(inv.snapshot.filed)+'，申报总额 '+esc(inv.snapshot.total)+'，'+inv.snapshot.positions+' 个持仓。来源：<a href="'+esc(inv.snapshot.sourceUrl)+'" target="_blank" rel="noopener">'+esc(inv.snapshot.source)+'</a>（第三方整理，须以 SEC 原文为准）。</p>'
+      +'<button type="button" data-hold="'+esc(inv.key)+'">查看快照持仓（前 '+inv.holdings.length+' 名）</button>'
+      +'<div class="holdings" id="hold-'+esc(inv.key)+'"><div class="tablewrap"><table><tr><th>代码</th><th>公司</th><th>申报价值（快照）</th><th>占申报总额</th></tr>'
+      +inv.holdings.map(function(h){return "<tr><td>"+esc(h[0])+"</td><td>"+esc(h[1])+"</td><td>"+esc(h[2])+"</td><td>"+esc(h[3])+"</td></tr>";}).join("")
+      +'</table></div><p class="small muted">仅列快照前几名，非完整持仓；完整名单见 SEC 原文。</p></div>';
+    list.appendChild(div);
+  });
+  if(f==="ashare"){
+    $("ashareCard").style.outline="3px solid #1e5aa8";
+    $("ashareCard").scrollIntoView({behavior:"smooth",block:"start"});
+  }else{$("ashareCard").style.outline="";}
+  $("radarCount").textContent = f==="ashare" ? "已选中“A 股结构说明”，请看下方结构说明卡片（不展示伪造名单）。" : ("共 "+shown+" 家机构。未找到时请换关键词，或直接用 SEC 链接核实。");
+  list.querySelectorAll("[data-hold]").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var t=$("hold-"+btn.dataset.hold);t.classList.toggle("show");
+      btn.textContent=t.classList.contains("show")?"收起快照持仓":"查看快照持仓（前列）";
+    });
+  });
+  hideErr($("radarError"));
+}
+$("radarSearchBtn").addEventListener("click",renderRadar);
+$("radarSearch").addEventListener("input",renderRadar);
+$("radarFilter").addEventListener("change",renderRadar);
+renderRadar();
+
+$("tickerBtn").addEventListener("click",function(){
+  var code=($("tickerInput").value||"").trim().toUpperCase();
+  var box=$("tickerResult");
+  if(!code){box.innerHTML='<p class="notice">请输入股票代码。</p>';return;}
+  var hits=[];
+  INVESTORS.forEach(function(inv){
+    inv.holdings.forEach(function(h){
+      if(h[0].toUpperCase()===code){hits.push({inv:inv,h:h});}
+    });
+  });
+  if(hits.length===0){
+    box.innerHTML='<p class="notice"><strong>本快照未覆盖 '+esc(code)+'。</strong>这只说明它不在上方三个快照的前几名里，不代表没有机构持有。请到 SEC EDGAR 按代码或机构 CIK 核实最新 13F：<a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=13F-HR" target="_blank" rel="noopener">SEC 13F 搜索 →</a></p>';
+  }else{
+    box.innerHTML='<div class="tablewrap"><table><tr><th>机构</th><th>代码</th><th>公司</th><th>申报价值（快照）</th><th>占比</th><th>快照季度末</th></tr>'
+      +hits.map(function(x){return "<tr><td>"+esc(x.inv.name)+"</td><td>"+esc(x.h[0])+"</td><td>"+esc(x.h[1])+"</td><td>"+esc(x.h[2])+"</td><td>"+esc(x.h[3])+"</td><td>"+esc(x.inv.snapshot.quarter)+"</td></tr>";}).join("")
+      +'</table></div><p class="small muted">快照数据，须以 SEC 原文为准；各机构快照季度可能不同。</p>';
+  }
+});
+</script>
+<script>
+"use strict";
+/* ---------- 组合实验室 ---------- */
+var ASSETS=[
+ {code:"SPY",stooq:"spy.us",checked:true,weight:25},
+ {code:"QQQ",stooq:"qqq.us",checked:true,weight:25},
+ {code:"GLD",stooq:"gld.us",checked:true,weight:25},
+ {code:"TLT",stooq:"tlt.us",checked:true,weight:25},
+ {code:"510300",stooq:"510300.ss",checked:false,weight:0},
+ {code:"513100",stooq:"513100.ss",checked:false,weight:0}
+];
+function renderAssets(){
+  var box=$("assetRows");box.innerHTML="";
+  ASSETS.forEach(function(a,i){
+    var d=document.createElement("div");d.className="row";d.style.marginBottom="8px";
+    d.innerHTML='<div class="narrow"><label><input type="checkbox" data-i="'+i+'" data-f="checked" '+(a.checked?"checked":"")+' style="width:auto"> 参与</label></div>'
+      +'<div><label>代码</label><input type="text" data-i="'+i+'" data-f="code" value="'+esc(a.code)+'"></div>'
+      +'<div><label>Stooq 代码</label><input type="text" data-i="'+i+'" data-f="stooq" value="'+esc(a.stooq)+'"></div>'
+      +'<div class="narrow"><label>权重 %</label><input type="number" min="0" max="100" step="0.1" data-i="'+i+'" data-f="weight" value="'+a.weight+'"></div>';
+    box.appendChild(d);
+  });
+  box.querySelectorAll("input").forEach(function(inp){
+    inp.addEventListener("change",function(){
+      var i=+inp.dataset.i,f=inp.dataset.f;
+      if(f==="checked"){ASSETS[i].checked=inp.checked;}
+      else if(f==="weight"){ASSETS[i].weight=parseFloat(inp.value)||0;}
+      else{ASSETS[i][f]=inp.value;}
+    });
+  });
+}
+renderAssets();
+$("equalBtn").addEventListener("click",function(){
+  var sel=ASSETS.filter(function(a){return a.checked;});
+  if(!sel.length){showErr($("labError"),"请先勾选至少一只资产。");return;}
+  var w=100/sel.length;ASSETS.forEach(function(a){a.weight=a.checked?w:0;});
+  renderAssets();hideErr($("labError"));
+});
+$("addAssetBtn").addEventListener("click",function(){ASSETS.push({code:"NEW",stooq:"new.us",checked:true,weight:0});renderAssets();});
+
+function parseStooqCSV(text){
+  var lines=text.trim().split(/\r?\n/);if(lines.length<2)return [];
+  var head=lines[0].split(",").map(function(s){return s.trim().toLowerCase();});
+  var di=head.indexOf("date"),ci=head.indexOf("close");if(di<0||ci<0)return [];
+  var out=[];
+  for(var i=1;i<lines.length;i++){var p=lines[i].split(",");if(p.length<=Math.max(di,ci))continue;var c=parseFloat(p[ci]);if(!isFinite(c))continue;out.push({date:p[di].trim(),close:c});}
+  out.sort(function(a,b){return a.date<b.date?-1:1;});return out;
+}
+function transpose(a){return a[0].map(function(_,i){return a.map(function(r){return r[i];});});}
+function matInv(m){
+  var n=m.length,a=m.map(function(r,i){var row=r.slice();for(var j=0;j<n;j++)row.push(i===j?1:0);return row;});
+  for(var col=0;col<n;col++){
+    var piv=col;for(var r=col+1;r<n;r++)if(Math.abs(a[r][col])>Math.abs(a[piv][col]))piv=r;
+    if(Math.abs(a[piv][col])<1e-12)throw new Error("协方差矩阵奇异，无法求逆");
+    var t=a[col];a[col]=a[piv];a[piv]=t;
+    var d=a[col][col];for(var j=0;j<2*n;j++)a[col][j]/=d;
+    for(var r=0;r<n;r++){if(r===col)continue;var f=a[r][col];for(var j=0;j<2*n;j++)a[r][j]-=f*a[col][j];}
+  }
+  return a.map(function(r){return r.slice(n);});
+}
+function matVec(m,v){return m.map(function(r){return r.reduce(function(s,x,i){return s+x*v[i];},0);});}
+function normalize(w){
+  var s=w.reduce(function(a,b){return a+b;},0);if(s===0)return w.map(function(){return 1/w.length;});
+  return w.map(function(x){return x/s;});
+}
+function clipNormalize(w){var c=w.map(function(x){return Math.max(0,x);});return normalize(c);}
+function optimizeWeights(mu,cov,method){
+  var n=mu.length;
+  if(method==="equal")return normalize(mu.map(function(){return 1;}));
+  var inv=matInv(cov.map(function(r,i){return r.map(function(x,j){return x+(i===j?1e-10:0);});}));
+  if(method==="minvar"){return clipNormalize(matVec(inv,mu.map(function(){return 1;})));}
+  if(method==="maxsharpe"){return clipNormalize(matVec(inv,mu));}
+  /* 风险平价近似：从逆波动权重出发，迭代使各资产风险贡献趋同（阻尼 0.5） */
+  var vol=cov.map(function(r,i){return Math.sqrt(Math.max(r[i],1e-12));});
+  var w=normalize(vol.map(function(v){return 1/v;})),i,k;
+  for(k=0;k<500;k++){
+    var mw=matVec(cov,w);var pv=w.reduce(function(s,x,idx){return s+x*mw[idx];},0);if(pv<=0)break;
+    var target=pv/n;
+    var contrib=w.map(function(x,idx){return x*mw[idx];});
+    var maxDev=Math.max.apply(null,contrib.map(function(c){return Math.abs(c-target)/Math.max(target,1e-12);}));
+    if(maxDev<0.005)break;
+    w=normalize(w.map(function(x,idx){return x*Math.pow(target/Math.max(contrib[idx],1e-12),0.5);}));
+  }
+  return w;
+}
+function computeStats(dates,closes,weights,periodsPerYear){
+  var n=closes.length,rets=[];
+  for(var i=1;i<n;i++)rets.push(closes[i]/closes[i-1]-1);
+  var mean=rets.reduce(function(a,b){return a+b;},0)/rets.length;
+  var sd=Math.sqrt(rets.reduce(function(a,b){return a+(b-mean)*(b-mean);},0)/Math.max(rets.length-1,1));
+  var cum=closes[closes.length-1]/closes[0]-1;
+  var peak=closes[0],dd=0;
+  closes.forEach(function(c){if(c>peak)peak=c;dd=Math.min(dd,c/peak-1);});
+  return {cum:cum,annVol:sd*Math.sqrt(periodsPerYear),maxDD:dd,sharpe:sd===0?0:(mean/sd)*Math.sqrt(periodsPerYear),mean:mean,sd:sd,n:rets.length};
+}
+function drawChart(canvas,dates,nav,label){
+  var ctx=canvas.getContext("2d");var W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H);
+  if(!nav||nav.length<2){ctx.fillStyle="#5b6b7f";ctx.font="14px sans-serif";ctx.fillText("暂无可绘制的数据。",20,30);return;}
+  var min=Math.min.apply(null,nav),max=Math.max.apply(null,nav),pad=(max-min)*0.08||1;min-=pad;max+=pad;
+  var L=46,R=12,T=14,B=26,pw=W-L-R,ph=H-T-B;
+  ctx.strokeStyle="#dde4ec";ctx.beginPath();for(var g=0;g<=4;g++){var y=T+ph*g/4;ctx.moveTo(L,y);ctx.lineTo(L+pw,y);}ctx.stroke();
+  ctx.strokeStyle="#1e5aa8";ctx.lineWidth=2;ctx.beginPath();
+  nav.forEach(function(v,i){var x=L+pw*i/(nav.length-1),y=T+ph*(1-(v-min)/(max-min));if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+  ctx.stroke();ctx.lineWidth=1;
+  ctx.fillStyle="#5b6b7f";ctx.font="12px sans-serif";
+  ctx.fillText(max.toFixed(1),4,T+12);ctx.fillText(min.toFixed(1),4,T+ph);
+  ctx.fillText(dates[0]||"",L,H-8);ctx.fillText(dates[dates.length-1]||"",L+pw-80,H-8);
+  ctx.fillText(label||"组合净值",L,T-2);
+}
+function renderLabResult(codes,dates,series,weights,methodLabel,periodsPerYear,sourceLabel){
+  /* series: 每只资产与 dates 对齐的收盘价数组 */
+  var n=codes.length,rets=[],i,j;
+  for(i=0;i<n;i++){var r=[];for(j=1;j<series[i].length;j++)r.push(series[i][j]/series[i][j-1]-1);rets.push(r);}
+  var T=rets[0].length,mu=rets.map(function(r){return r.reduce(function(a,b){return a+b;},0)/r.length;});
+  var cov=[];for(i=0;i<n;i++){cov.push([]);for(j=0;j<n;j++){var m=0;for(var k=0;k<T;k++)m+=(rets[i][k]-mu[i])*(rets[j][k]-mu[j]);cov[i].push(m/Math.max(T-1,1));}}
+  var corr=[];for(i=0;i<n;i++){corr.push([]);for(j=0;j<n;j++){var d=Math.sqrt(cov[i][i]*cov[j][j]);corr[i].push(d===0?0:cov[i][j]/d);}}
+  var nav=[100],portRets=[];
+  for(j=1;j<dates.length;j++){var pr=0;for(i=0;i<n;i++)pr+=weights[i]*(series[i][j]/series[i][j-1]-1);portRets.push(pr);nav.push(nav[nav.length-1]*(1+pr));}
+  var st=computeStats(dates,nav,weights,periodsPerYear);
+  drawChart($("equityCanvas"),dates,nav,"组合净值（"+sourceLabel+"）");
+  $("chartNote").textContent="来源："+sourceLabel+"；区间 "+dates[0]+" 至 "+dates[dates.length-1]+"，共 "+dates.length+" 个点。方法："+methodLabel+"。";
+  $("labResults").innerHTML='<div class="tablewrap"><table><tr><th>累计收益</th><th>年化波动</th><th>最大回撤</th><th>夏普比率（无风险利率 0）</th><th>样本收益数</th></tr><tr><td>'+fmtPct(st.cum)+'</td><td>'+fmtPct(st.annVol)+'</td><td>'+fmtPct(st.maxDD)+'</td><td>'+st.sharpe.toFixed(2)+'</td><td>'+st.n+'</td></tr></table></div>';
+  $("corrTable").innerHTML='<div class="tablewrap"><table><tr><th></th>'+codes.map(function(c){return "<th>"+esc(c)+"</th>";}).join("")+'</tr>'
+    +codes.map(function(c,i){return "<tr><th>"+esc(c)+"</th>"+corr[i].map(function(v){return "<td>"+v.toFixed(2)+"</td>";}).join("")+"</tr>";}).join("")+'</table></div>';
+  $("weightTable").innerHTML='<div class="tablewrap"><table><tr><th>资产</th><th>优化后权重</th></tr>'
+    +codes.map(function(c,i){return "<tr><td>"+esc(c)+"</td><td>"+fmtPct(weights[i])+"</td></tr>";}).join("")+'</table></div><p class="small muted">权重由本页 JavaScript 实时求解；最大夏普 / 最小方差的负权重已截断为 0 并重归一。</p>';
+  var s=$("labStatus");s.style.display="block";s.textContent="计算完成（"+sourceLabel+"）。区间 "+dates[0]+" 至 "+dates[dates.length-1]+"。";
+}
+function selectedAssets(){
+  var sel=ASSETS.filter(function(a){return a.checked;});
+  if(sel.length<2)throw new Error("请至少勾选两只资产。");
+  var ws=sel.map(function(a){return a.weight;});var sum=ws.reduce(function(a,b){return a+b;},0);
+  if(sum<=0)throw new Error("权重之和须大于 0，或点“一键等权”。");
+  return {sel:sel,rawWeights:ws.map(function(w){return w/sum;})};
+}
+function runWithSeries(codes,dates,series,periodsPerYear,sourceLabel,method){
+  var w;
+  if(method==="equal"){w=normalize(codes.map(function(){return 1;}));}
+  else{
+    var rets=[],i,j;
+    for(i=0;i<codes.length;i++){var r=[];for(j=1;j<series[i].length;j++)r.push(series[i][j]/series[i][j-1]-1);rets.push(r);}
+    var mu=rets.map(function(r){return r.reduce(function(a,b){return a+b;},0)/r.length;});
+    var cov=[];for(i=0;i<codes.length;i++){cov.push([]);for(j=0;j<codes.length;j++){var m=0;for(var k=0;k<rets[0].length;k++)m+=(rets[i][k]-mu[i])*(rets[j][k]-mu[j]);cov[i].push(m/Math.max(rets[0].length-1,1));}}
+    w=optimizeWeights(mu,cov,method);
+    /* 若用户填了权重且方法不是等权：优化权重优先；原始权重仅在等权时使用。 */
+  }
+  var methodLabel=$("labMethod").selectedOptions[0].textContent;
+  renderLabResult(codes,dates,series,w,methodLabel,periodsPerYear,sourceLabel);
+}
+$("runBtn").addEventListener("click",async function(){
+  var btn=$("runBtn");btn.disabled=true;hideErr($("labError"));
+  try{
+    var sel=selectedAssets();
+    var start=$("labStart").value,end=$("labEnd").value;
+    if(!start||!end||start>=end)throw new Error("回测区间无效：开始日期须早于结束日期。");
+    var fetched=[];
+    for(var i=0;i<sel.length;i++){
+      var url="https://stooq.com/q/d/l/?s="+encodeURIComponent(sel[i].stooq.toLowerCase())+"&i=d";
+      var resp;
+      try{resp=await fetch(url);}catch(e){throw new Error("拉取 "+sel[i].stooq+" 失败（网络 / CORS 被拒）：" + e.message + "。Stooq 浏览器直连常被 CORS 挡住，请改用“上传 CSV”或“示例测算”。");}
+      if(!resp.ok)throw new Error("Stooq 返回 HTTP "+resp.status+"（"+sel[i].stooq+"），请稍后重试或改用上传 CSV / 示例测算。");
+      var txt=await resp.text();
+      if(txt.slice(0,20).toLowerCase().indexOf("date")!==0)throw new Error("Stooq 未返回 CSV（可能已达频次上限，返回了网页）。请稍后重试或改用上传 CSV / 示例测算。");
+      var rows=parseStooqCSV(txt).filter(function(r){return r.date>=start&&r.date<=end;});
+      if(rows.length<20)throw new Error(sel[i].stooq+" 在区间内只有 "+rows.length+" 个交易日，数据不足 20 个点，无法回测。");
+      fetched.push(rows);
+    }
+    var common=fetched[0].map(function(r){return r.date;}).filter(function(d){return fetched.every(function(f){return f.some(function(r){return r.date===d;});});});
+    if(common.length<20)throw new Error("各资产共同交易日只有 "+common.length+" 个，数据不足。");
+    var series=fetched.map(function(f){return common.map(function(d){return f.filter(function(r){return r.date===d;})[0].close;});});
+    runWithSeries(sel.map(function(a){return a.code;}),common,series,252,"Stooq 实时拉取（"+new Date().toLocaleString("zh-CN")+"）",$("labMethod").value);
+  }catch(e){showErr($("labError"),e.message);var s=$("labStatus");s.style.display="none";}
+  btn.disabled=false;
+});
+/* 示例测算：内嵌月度样本，全程标注示例 */
+var SAMPLE_DATES=["2024-01-31","2024-02-29","2024-03-31","2024-04-30","2024-05-31","2024-06-30","2024-07-31","2024-08-31","2024-09-30","2024-10-31","2024-11-30","2024-12-31","2025-01-31","2025-02-28","2025-03-31","2025-04-30","2025-05-31","2025-06-30","2025-07-31","2025-08-31","2025-09-30","2025-10-31","2025-11-30","2025-12-31","2026-01-31"];
+var SAMPLE={
+ SPY:[100,102,105,103,108,110,112,109,114,117,115,119,121,124,122,127,130,128,133,136,134,139,142,145,148],
+ QQQ:[100,104,108,104,111,115,118,113,120,125,121,128,131,136,132,139,144,139,147,152,148,155,160,164,169],
+ GLD:[100,101,99,102,104,103,106,108,105,107,109,111,110,113,115,112,116,118,117,121,123,122,126,128,130],
+ TLT:[100,99,97,99,98,96,97,98,96,95,97,94,93,95,92,91,93,90,89,91,88,87,89,86,85]
+};
+$("sampleBtn").addEventListener("click",function(){
+  hideErr($("labError"));
+  try{
+    var sel=selectedAssets();
+    var codes=sel.map(function(a){return a.code;});
+    var missing=codes.filter(function(c){return !SAMPLE[c];});
+    if(missing.length)throw new Error("示例测算只内置了 SPY / QQQ / GLD / TLT 四只样本资产，未内置 "+missing.join("、")+" 的样本数据。请只勾选这四只做示例测算，或改用 Stooq 拉取 / 上传 CSV。");
+    var series=codes.map(function(c){return SAMPLE[c];});
+    var note="示例数据，非实时行情";
+    runWithSeries(codes,SAMPLE_DATES,series,12,"示例数据（内嵌月度样本，"+note+"）",$("labMethod").value);
+    $("chartNote").textContent+=" 本次为示例测算：数据为内嵌月度样本，非实时行情，仅用于演示计算流程。";
+  }catch(e){showErr($("labError"),e.message);}
+});
+/* 上传 CSV */
+$("csvBtn").addEventListener("click",function(){
+  hideErr($("csvError"));hideErr($("labError"));
+  var f=$("csvFile").files[0];
+  if(!f){showErr($("csvError"),"请先选择一个 CSV 文件。");return;}
+  var reader=new FileReader();
+  reader.onload=function(){
+    try{
+      var lines=String(reader.result).trim().split(/\r?\n/);if(lines.length<5)throw new Error("CSV 行数太少，无法计算。");
+      var head=lines[0].split(",").map(function(s){return s.trim();});
+      var dates=[],cols={};
+      head.forEach(function(h,i){if(i>0)cols[h]=[];});
+      var isSingle=head.length===2&&head[1].toLowerCase()==="close";
+      for(var i=1;i<lines.length;i++){var p=lines[i].split(",");if(p.length<head.length)continue;dates.push(p[0].trim());if(isSingle){cols["UPLOAD"] = cols["UPLOAD"]||[];cols["UPLOAD"].push(parseFloat(p[1]));}else{head.forEach(function(h,idx){if(idx>0)cols[h].push(parseFloat(p[idx]));});}}
+      var codes,series;
+      if(isSingle){
+        var sel=selectedAssets();codes=[sel[0].code];series=[cols["UPLOAD"]];
+        /* 单资产无法做组合优化：用该资产自身作为组合 */
+        runWithSeries(codes,dates,series,252,"上传 CSV（单资产，date,close）",$("labMethod").value);
+      }else{
+        codes=Object.keys(cols);series=codes.map(function(c){return cols[c];});
+        if(codes.length<2)throw new Error("多列 CSV 至少需要两列资产价格。");
+        runWithSeries(codes,dates,series,252,"上传 CSV（多列）",$("labMethod").value);
+      }
+      var bad=series.some(function(s){return s.some(function(v){return !isFinite(v);});});
+      if(bad)throw new Error("CSV 中存在无法解析的价格，请检查数字格式。");
+    }catch(e){showErr($("csvError"),e.message);}
+  };
+  reader.onerror=function(){showErr($("csvError"),"读取文件失败，请重试。");};
+  reader.readAsText(f);
+});
+</script>
+<script>
+"use strict";
+/* ---------- 宏观看板 ---------- */
+var WB_COUNTRIES=[["CN","中国"],["USA","美国"],["JP","日本"],["EU","欧盟"]];
+var WB_INDICATORS=[
+ {code:"FP.CPI.TOTL.ZG",name:"CPI 同比（%）"},
+ {code:"NY.GDP.MKTP.KD.ZG",name:"GDP 增速（%）"},
+ {code:"SL.UEM.TOTL.ZS",name:"失业率（%）"}
+];
+function drawMini(canvas,values){
+  var ctx=canvas.getContext("2d");var W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  if(!values||values.length<2){ctx.fillStyle="#5b6b7f";ctx.font="12px sans-serif";ctx.fillText("数据不足，无法绘图。",8,20);return;}
+  var min=Math.min.apply(null,values),max=Math.max.apply(null,values),pad=(max-min)*0.1||0.5;min-=pad;max+=pad;
+  ctx.strokeStyle="#0e7c6b";ctx.lineWidth=2;ctx.beginPath();
+  values.forEach(function(v,i){var x=8+(W-16)*i/(values.length-1),y=H-8-(H-16)*(v-min)/(max-min);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+  ctx.stroke();
+}
+async function loadMacro(){
+  var btn=$("macroRefreshBtn");btn.disabled=true;hideErr($("macroError"));
+  $("macroCards").innerHTML='<p class="muted">正在拉取世界银行公开 API…</p>';
+  var fetchedAt=new Date().toLocaleString("zh-CN");
+  var results={};var anyOk=false;var errors=[];
+  for(var k=0;k<WB_INDICATORS.length;k++){
+    var ind=WB_INDICATORS[k];
+    try{
+      var url="https://api.worldbank.org/v2/country/CN;USA;JP;EU/indicator/"+ind.code+"?format=json&per_page=100&date=2015:2025";
+      var resp=await fetch(url);
+      if(!resp.ok)throw new Error("HTTP "+resp.status);
+      var j=await resp.json();
+      if(!Array.isArray(j)||!Array.isArray(j[1]))throw new Error("返回格式异常");
+      j[1].forEach(function(r){
+        if(r.value==null)return;
+        var key=r.countryiso3code||r.country.id;
+        if(!results[key])results[key]={};
+        if(!results[key][ind.code])results[key][ind.code]=[];
+        results[key][ind.code].push({date:+r.date,value:r.value});
+      });
+      anyOk=true;
+    }catch(e){errors.push(ind.code+": "+e.message);}
+  }
+  if(!anyOk){
+    showErr($("macroError"),"世界银行 API 拉取失败："+errors.join("；")+"。请检查网络后点“刷新”重试。本页不展示旧数或编造数字。");
+    $("macroCards").innerHTML='<p class="muted">拉取失败，未展示任何指标。</p>';
+    $("macroMeta").textContent="拉取失败，时间 "+fetchedAt+"。";
+  }else{
+    hideErr($("macroError"));
+    var html="";
+    WB_COUNTRIES.forEach(function(c){
+      var code=c[0],name=c[1];
+      /* EU 在返回里可能以 EU / 欧洲联盟代码出现；按国家 id 兜底匹配 */
+      var bucket=results[code]||results[c[0]==="EU"?"EUU":code]||{};
+      html+='<div class="card" style="margin:0 0 12px"><h3>'+esc(name)+'（'+esc(code)+'）</h3><div class="grid">';
+      WB_INDICATORS.forEach(function(ind,idx){
+        var arr=(bucket[ind.code]||[]).slice().sort(function(a,b){return a.date-b.date;});
+        var latest=arr[arr.length-1];
+        var cid="mini-"+code+"-"+idx;
+        if(latest){
+          html+='<div><p style="margin:0"><strong>'+esc(ind.name)+'</strong></p><p style="font-size:22px;margin:4px 0">'+latest.value.toFixed(2)+'% <span class="muted" style="font-size:13px">'+latest.date+' 年</span></p><canvas class="mini" id="'+cid+'" width="260" height="64"></canvas><p class="small muted">近 '+arr.length+' 个年度值，2015–2025 区间内有值年份。</p></div>';
+        }else{
+          html+='<div><p style="margin:0"><strong>'+esc(ind.name)+'</strong></p><p class="notice">本次拉取未获取到该指标（接口未返回 / 超时），不写旧数。</p></div>';
+        }
+      });
+      html+='</div></div>';
+    });
+    $("macroCards").innerHTML=html;
+    WB_COUNTRIES.forEach(function(c){
+      var bucket=results[c[0]]||results[c[0]==="EU"?"EUU":c[0]]||{};
+      WB_INDICATORS.forEach(function(ind,idx){
+        var arr=(bucket[ind.code]||[]).slice().sort(function(a,b){return a.date-b.date;});
+        var cv=$( "mini-"+c[0]+"-"+idx);if(cv)drawMini(cv,arr.map(function(r){return r.value;}));
+      });
+    });
+    $("macroMeta").textContent="来源：世界银行公开 API；拉取时间 "+fetchedAt+"（北京时间，浏览器本地时间）。"+(errors.length?" 部分指标失败："+errors.join("；"):"");
+  }
+  btn.disabled=false;
+}
+$("macroRefreshBtn").addEventListener("click",loadMacro);
+
+async function loadFred(){
+  var btn=$("fredBtn");btn.disabled=true;hideErr($("fredError"));
+  $("fredBox").innerHTML='<p class="muted">正在尝试拉取 FRED fredgraph.csv…</p>';
+  var ids=["DGS10","DGS2","FEDFUNDS"];var rows=[];
+  for(var i=0;i<ids.length;i++){
+    var id=ids[i];
+    try{
+      var resp=await fetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id="+id);
+      if(!resp.ok)throw new Error("HTTP "+resp.status);
+      var txt=await resp.text();
+      var lines=txt.trim().split(/\r?\n/);
+      if(lines.length<2||lines[0].toUpperCase().indexOf("DATE")!==0)throw new Error("返回的不是 CSV");
+      var last=null;
+      for(var j=lines.length-1;j>=1;j--){var p=lines[j].split(",");if(p.length>=2&&p[1].trim()!==""&&p[1].trim()!=="."){last={date:p[0].trim(),value:parseFloat(p[1])};break;}}
+      if(!last||!isFinite(last.value))throw new Error("无有效数值");
+      rows.push({id:id,date:last.date,value:last.value});
+    }catch(e){rows.push({id:id,error:e.message});}
+  }
+  var ok=rows.filter(function(r){return !r.error;});
+  if(ok.length===0){
+    showErr($("fredError"),"FRED 拉取失败：浏览器直连 fredgraph.csv 通常被 CORS 挡住，或网络不可达。请直接打开下方 FRED 官方页面查看原文。本页不展示任何利率数字。");
+    $("fredBox").innerHTML='<p class="notice"><strong>未接入 FRED 实时序列。</strong>原因：浏览器直连失败（见上方错误）。请用下方 FRED 官方链接查看 DGS10 / DGS2 / FEDFUNDS 原文。</p>';
+  }else{
+    hideErr($("fredError"));
+    $("fredBox").innerHTML='<div class="tablewrap"><table><tr><th>序列</th><th>最新值</th><th>日期</th><th>状态</th></tr>'
+      +rows.map(function(r){return r.error?("<tr><td>"+esc(r.id)+"</td><td>—</td><td>—</td><td>未获取："+esc(r.error)+"</td></tr>"):("<tr><td>"+esc(r.id)+"</td><td>"+r.value.toFixed(2)+"</td><td>"+esc(r.date)+"</td><td>已拉取（FRED fredgraph.csv，"+new Date().toLocaleString("zh-CN")+"）</td></tr>");}).join("")
+      +'</table></div>';
+  }
+  btn.disabled=false;
+}
+$("fredBtn").addEventListener("click",loadFred);
+
+/* ---------- AI 数据智库 ---------- */
+var MODEL_LIMIT=50;
+function fmtMoneyPerMillion(v){
+  if(v==null||!isFinite(v))return "—";
+  if(v===0)return "$0";
+  return "$"+v.toFixed(2);
+}
+function fmtCtx(n){
+  if(n==null)return "—";
+  if(n>=1000000)return (n/1000000).toFixed(1).replace(/\.0$/,"")+"M";
+  if(n>=1000)return Math.round(n/1000)+"K";
+  return String(n);
+}
+function renderModels(){
+  var q=($("modelSearch").value||"").trim().toLowerCase();
+  var sort=$("modelSort").value;
+  var list=(window.__models||[]).slice();
+  if(q)list=list.filter(function(m){return (m.id+" "+(m.name||"")).toLowerCase().indexOf(q)>=0;});
+  list.sort(function(a,b){
+    var pa=parseFloat(a.pricing&&a.pricing.prompt)||0,pb=parseFloat(b.pricing&&b.pricing.prompt)||0;
+    var ca=parseFloat(a.pricing&&a.pricing.completion)||0,cb=parseFloat(b.pricing&&b.pricing.completion)||0;
+    if(sort==="prompt")return pa-pb;if(sort==="promptDesc")return pb-pa;
+    if(sort==="completion")return ca-cb;if(sort==="contextDesc")return (b.context_length||0)-(a.context_length||0);
+    return (a.name||a.id).localeCompare(b.name||b.id);
+  });
+  var total=list.length,shown=list.slice(0,window.__modelShown||MODEL_LIMIT);
+  $("modelTable").innerHTML='<div class="tablewrap"><table><tr><th>模型 id</th><th>名称</th><th>上下文</th><th>输入价 / 百万 token</th><th>输出价 / 百万 token</th></tr>'
+    +shown.map(function(m){
+      var p=parseFloat(m.pricing&&m.pricing.prompt),c=parseFloat(m.pricing&&m.pricing.completion);
+      return "<tr><td>"+esc(m.id)+"</td><td>"+esc(m.name||"")+"</td><td>"+fmtCtx(m.context_length)+"</td><td>"+fmtMoneyPerMillion(isFinite(p)?p*1000000:null)+"</td><td>"+fmtMoneyPerMillion(isFinite(c)?c*1000000:null)+"</td></tr>";
+    }).join("")+'</table></div><p class="small muted">显示 '+shown.length+' / '+total+' 条（已按搜索过滤）。价格为接口返回价换算，仅供参考，以 OpenRouter 实时页面为准。</p>';
+  var more=$("modelMoreBtn");more.style.display=(total>shown.length)?"inline-block":"none";
+}
+async function loadModels(){
+  var btn=$("modelRefreshBtn");btn.disabled=true;hideErr($("modelError"));
+  $("modelTable").innerHTML='<p class="muted">正在拉取 OpenRouter 公开模型列表…</p>';
+  try{
+    var resp=await fetch("https://openrouter.ai/api/v1/models");
+    if(!resp.ok)throw new Error("HTTP "+resp.status);
+    var j=await resp.json();
+    if(!j||!Array.isArray(j.data)||j.data.length===0)throw new Error("返回格式异常或模型列表为空");
+    window.__models=j.data;window.__modelShown=MODEL_LIMIT;
+    $("modelMeta").textContent="共 "+j.data.length+" 个模型；拉取时间 "+new Date().toLocaleString("zh-CN")+"（浏览器本地时间）；来源：OpenRouter 公开接口 https://openrouter.ai/api/v1/models。";
+    renderModels();
+  }catch(e){
+    showErr($("modelError"),"OpenRouter 模型列表拉取失败："+e.message+"。请检查网络后点“刷新”重试。本页不展示旧价格表。");
+    $("modelTable").innerHTML='<p class="muted">拉取失败，未展示价格表。</p>';
+  }
+  btn.disabled=false;
+}
+$("modelRefreshBtn").addEventListener("click",function(){window.__modelShown=MODEL_LIMIT;loadModels();});
+$("modelSearch").addEventListener("input",renderModels);
+$("modelSort").addEventListener("change",renderModels);
+$("modelMoreBtn").addEventListener("click",function(){window.__modelShown=(window.__modelShown||MODEL_LIMIT)+50;renderModels();});
+</script>
+</body>
+</html>
